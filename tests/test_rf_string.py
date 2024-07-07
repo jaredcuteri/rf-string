@@ -1,6 +1,8 @@
 from contextlib import nullcontext
 import pytest
+
 from rf_string import rf_string
+
 
 @pytest.mark.parametrize('r_string, f_string, valid', (
     (r'hello_world', 'hello_world', True),
@@ -22,6 +24,18 @@ def test_match_not_found():
     )
     with pytest.raises(rf_string.MatchNotFoundError):
         rf_stringer.parse('15hello')
+
+
+def test_redefining_values():
+    rf_stringer = rf_string.RFString(
+        r'(?P<word>\w+)(?P<number>\d+)',
+        '{word}{number}',
+    )
+    values = rf_stringer.parse('hello15')
+    values['number'] = 16
+    values['word'] = 'goodbye'
+    return_sample = rf_stringer.write(values)
+    assert return_sample == 'goodbye16'
 
 
 @pytest.mark.parametrize('r_string, f_string, sample', [
