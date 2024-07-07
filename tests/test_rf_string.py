@@ -1,14 +1,43 @@
 from contextlib import nullcontext
 import pytest
-import rf_string
+from rf_string import rf_string
 
 @pytest.mark.parametrize('r_string, f_string, valid', (
     (r'hello_world', 'hello_world', True),
     (r'(?P<number>\d+)_test', 'bad_test', False),
     (r'(?P<number>\d+)_test', '{number:%d}_test', True),
-    (r'(?P<number>\d+)_test', '{number:%f}_test', True),
+    # (r'(?P<number>\w+)_test', '{number:%d}_test', False), # TODO: add back in once format checking is supported
+    (r'(?P<word>\w+)_test', '{word}_test', True),
 ))
 def test_validation(r_string, f_string, valid):
-    test_context = nullcontext() if valid else pytest.raises(rf_string.rf_string.InconsistentRfStringDefError)
+    test_context = nullcontext() if valid else pytest.raises(rf_string.InconsistentRfStringDefError)
     with test_context:
-        rf_string.RFstr(r_string, f_string)
+        rf_string.RFString(r_string, f_string)
+
+
+def test_match_not_found():
+    rf_stringer = rf_string.RFString(
+        r'(?P<word>\w+)(?P<number>\d+)',
+        '{word}{number}',
+    )
+    with pytest.raises(rf_string.MatchNotFoundError):
+        rf_stringer.parse('15hello')
+
+
+@pytest.mark.parametrize('r_string, f_string, sample', [
+    (
+        r'(?P<word>\w+)(?P<number>\d+)',
+        '{word}{number}',
+        'hello15',
+    ),
+    (
+        r'(?P<number1>\d+)_(?P<number2>\d)(?P<word>\w+)(?P<number3>\d)',
+        '{number1}_{number2}{word}{number3}',
+        '1234_5hello6',
+    ),
+])
+def test_roundtrip(r_string, f_string, sample):
+    rf_stringer = rf_string.RFString(r_string, f_string)
+    values = rf_stringer.parse(sample)
+    roundtrip_sample = rf_stringer.write(values)
+    assert sample == roundtrip_sample

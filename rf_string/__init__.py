@@ -1,1 +1,1 @@
-from .rf_string import RFstr
+from .rf_string import RFString
