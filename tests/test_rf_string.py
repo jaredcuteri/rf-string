@@ -1,18 +1,27 @@
 from contextlib import nullcontext
 import pytest
 
-from rf_string import rf_string
+from rf_string import rf_string, exceptions
 
 
-@pytest.mark.parametrize('r_string, f_string, valid', (
-    (r'hello_world', 'hello_world', True),
-    (r'(?P<number>\d+)_test', 'bad_test', False),
-    (r'(?P<number>\d+)_test', '{number:%d}_test', True),
-    # (r'(?P<number>\w+)_test', '{number:%d}_test', False), # TODO: add back in once format checking is supported
-    (r'(?P<word>\w+)_test', '{word}_test', True),
-))
+@pytest.mark.parametrize('r_string, f_string, valid',
+    (
+        (r'hello_world', 'hello_world', True),
+        (r'(?P<number>\d+)_test', '{number}_test', True),
+        (r'(?P<word>\w+)_test', '{word}_test', True),
+        (r'(?P<number>\d+)_test', 'bad_test', False),
+        (r'(?P<number>\d+)_test', '05_test_{number}', False),
+    ),
+    ids=(
+        'no-groups',
+        'matching-int',
+        'matching-word',
+        'missing-f-param',
+        'bad-roundtrip',
+    )
+)
 def test_validation(r_string, f_string, valid):
-    test_context = nullcontext() if valid else pytest.raises(rf_string.InconsistentRfStringDefError)
+    test_context = nullcontext() if valid else pytest.raises(exceptions.RFStringError)
     with test_context:
         rf_string.RFString(r_string, f_string)
 

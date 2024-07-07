@@ -1,41 +1,51 @@
 import re
-from string import Formatter
+from itertools import count
 
+from rf_string.exceptions import MatchNotFoundError, InconsistentRfStringDefError
+from rf_string.formatter import StoredFormatter
 
-class _StoredFormatter:
-    """Formatter wrapper that stores the format string"""
-    def __init__(self, format_string):
-        self._format_string = format_string
-        self._fmt = Formatter
+# Mapping from f string spec to class
+SPEC_CLASS_MAP = {
+    'd': int,
+    'f': float,
+    's': str,
+    '': str,
+}
 
-    def format(self, *args, **kwargs):
-        return self._fmt().format(self._format_string, *args, **kwargs)
+def string_test_iterator():
+    string = ''
+    def string_iter():
+        nonlocal string
+        while True:
+            string += 'Wu'
+            yield string
+    return string_iter()
 
-    def parse(self):
-        """ Returns (literal_text, field_name, format_spec, conversion)"""
-        return self._fmt().parse(self._format_string)
-
-    def get_field_names_spec(self):
-        name_spec = {}
-        for literal_text, field_name, format_spec, conversion in self.parse():
-            if field_name is not None:
-                name_spec[field_name] = format_spec
-        return name_spec
-
-
-class InconsistentRfStringDefError(ValueError):
-    """RFstr definition is inconsistent."""
-
-
-class MatchNotFoundError(ValueError):
-    """Match not found for string sample."""
-
+# Mapping from class to dummy iterator
+SPEC_ITERATOR = {
+    int: count(start=0, step=1),
+    float: count(start=0.0, step=0.1),
+    str: count(start=0, step=1)
+}
 
 class RFString:
     def __init__(self, r_string_spec: str, f_string_spec: str):
-        self._parser = re.compile(r_string_spec)
-        self._formatter = _StoredFormatter(f_string_spec)
+        self._r_string = r_string_spec
+        self._f_string = f_string_spec
+        self._parser = re.compile(self._r_string)
+        self._formatter = StoredFormatter(self._f_string)
         self._validate()
+
+    def _test_round_trip(self) -> None:
+        dummy_values = {field: idx for idx, field in enumerate(self._formatter.get_field_names_spec().keys())}
+        written_str = self.write(dummy_values)
+        parsed_values = self.parse(written_str)
+        rewritten_str = self.write(parsed_values)
+        if rewritten_str != written_str:
+            raise InconsistentRfStringDefError(
+                f'r-string definition {self._r_string} was not roundtrip compatible'
+                f' with f-string definition {self._f_string}'
+            )
 
     def _validate(self) -> None:
         """Validate that the parser and formatter generated from the r- and f- strings are consistent."""
@@ -64,8 +74,10 @@ class RFString:
                     f'{parser_field} was specified in r-string but not found in f-string fields {formatter_field_names}'
                 )
 
-        # TODO: Ensure that all fields have compatible format specifications
+        # Make sure r-string and f-string specified are round trip compatible
+        self._test_round_trip()
 
+        # TODO: Ensure that all fields have compatible format specifications
         # TODO: Add check to make sure users isn't using to-be-supported regex
 
     def parse(self, string: str) -> dict:
