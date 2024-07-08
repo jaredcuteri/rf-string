@@ -35,5 +35,5 @@ jobs:
         shell: bash
       - name: Build and Publish
         run: |
-          poetry publish --build -n -vvv -p ${{ secrets.PYPI_TOKEN }} -u __token__
+          poetry publish -p ${{ secrets.PYPI_TOKEN }} -u __token__  --build -n -vvv
         shell: bash
