@@ -1,8 +1,14 @@
 name: Build and publish python package
 
+# Only run on new tags
+# on:
+#   release:
+#     types: [ published ]
+# Run on any push to master
 on:
-  release:
-    types: [ published ]
+  push:
+    branches:
+      - master
 
 jobs:
   publish-service-client-package:
