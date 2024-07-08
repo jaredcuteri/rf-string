@@ -12,9 +12,8 @@ on:
 
 jobs:
   publish-service-client-package:
+    needs: build
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -35,5 +34,5 @@ jobs:
         shell: bash
       - name: Build and Publish
         run: |
-          poetry publish -p ${{ secrets.PYPI_TOKEN }} -u __token__  --build -n -vvv
+          poetry publish --build -n -p ${{ secrets.PYPI_TOKEN }} -u __token__  -vvv
         shell: bash
