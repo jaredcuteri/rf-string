@@ -1,6 +1,6 @@
-
 class RFStringError(Exception):
     """RFString Errors"""
+
 
 class InconsistentRfStringDefError(RFStringError):
     """RFstr definition is inconsistent."""
@@ -8,4 +8,3 @@ class InconsistentRfStringDefError(RFStringError):
 
 class MatchNotFoundError(RFStringError):
     """Match not found for string sample."""
-

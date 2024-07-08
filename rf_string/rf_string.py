@@ -1,32 +1,8 @@
 import re
-from itertools import count
 
 from rf_string.exceptions import MatchNotFoundError, InconsistentRfStringDefError
 from rf_string.formatter import StoredFormatter
 
-# Mapping from f string spec to class
-SPEC_CLASS_MAP = {
-    'd': int,
-    'f': float,
-    's': str,
-    '': str,
-}
-
-def string_test_iterator():
-    string = ''
-    def string_iter():
-        nonlocal string
-        while True:
-            string += 'Wu'
-            yield string
-    return string_iter()
-
-# Mapping from class to dummy iterator
-SPEC_ITERATOR = {
-    int: count(start=0, step=1),
-    float: count(start=0.0, step=0.1),
-    str: count(start=0, step=1)
-}
 
 class RFString:
     def __init__(self, r_string_spec: str, f_string_spec: str):

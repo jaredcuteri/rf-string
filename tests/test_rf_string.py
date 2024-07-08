@@ -4,8 +4,7 @@ import pytest
 from rf_string import rf_string, exceptions
 
 
-@pytest.mark.parametrize('r_string, f_string, valid',
-    (
+@pytest.mark.parametrize('r_string, f_string, valid', (
         (r'hello_world', 'hello_world', True),
         (r'(?P<number>\d+)_test', '{number}_test', True),
         (r'(?P<word>\w+)_test', '{word}_test', True),
