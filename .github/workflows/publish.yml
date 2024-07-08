@@ -35,6 +35,5 @@ jobs:
         shell: bash
       - name: Build and Publish
         run: |
-          cd $GITHUB_WORKSPACE/rf-string
-          poetry publish -p ${{ secrets.PYPI_TOKEN }} -u __token__ --build --dist
+          poetry publish --build -n -vvv -p ${{ secrets.PYPI_TOKEN }} -u __token__
         shell: bash
