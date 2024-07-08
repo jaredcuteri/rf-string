@@ -11,6 +11,7 @@ on:
       - master
 
 jobs:
+  # TODO: reduce duplication with testing.yml
   build:
 
     runs-on: ubuntu-latest
