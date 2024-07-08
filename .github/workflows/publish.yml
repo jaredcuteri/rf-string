@@ -30,6 +30,5 @@ jobs:
         shell: bash
       - name: Build and Publish
         run: |
-          poetry config repositories.publish https://upload.pypi.org/legacy/
-          poetry publish -p ${{ secrets.PYPI_TOKEN }} -u __token__ -r publish --build
+          poetry publish -p ${{ secrets.PYPI_TOKEN }} -u __token__ --build
         shell: bash
