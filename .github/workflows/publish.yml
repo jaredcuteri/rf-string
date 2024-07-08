@@ -13,7 +13,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          ref: master
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install poetry
         run: pip install poetry poetry-core
@@ -30,5 +29,6 @@ jobs:
         shell: bash
       - name: Build and Publish
         run: |
-          poetry publish -p ${{ secrets.PYPI_TOKEN }} -u __token__ --build
+          cd $GITHUB_WORKSPACE/rf-string
+          poetry publish -p ${{ secrets.PYPI_TOKEN }} -u __token__ --build --dist
         shell: bash
