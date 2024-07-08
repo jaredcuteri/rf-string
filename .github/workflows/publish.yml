@@ -10,8 +10,26 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Publish PyPi package
-        uses: code-specialist/pypi-poetry-publish@v1
+      - name: Checkout Repository
+        uses: actions/checkout@v3
         with:
-          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PUBLISH_REGISTRY_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+          ref: master
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install poetry
+        run: pip install poetry poetry-core
+        shell: bash
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: poetry
+          check-latest: true
+      - name: Install dependencies
+        run: |
+          poetry install --no-root
+        shell: bash
+      - name: Build and Publish
+        run: |
+          poetry config repositories.publish ${{ https://upload.pypi.org/legacy/ }}
+          poetry publish -p ${{ secrets.PYPI_TOKEN }} -u __token__ -r publish --build
+        shell: bash
