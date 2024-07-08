@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rf-string"
-version = "0.1.0"
+version = "0.1.1"
 description = "rf-string provides round trip string support via complimentary regex parsing to fstring formatting."
 authors = ["Jared Cuteri <jaredcuteri@gmail.com>"]
 readme = "README.md"
