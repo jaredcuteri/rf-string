@@ -63,3 +63,9 @@ def test_roundtrip(r_string, f_string, sample):
     values = rf_stringer.parse(sample)
     roundtrip_sample = rf_stringer.write(values)
     assert sample == roundtrip_sample
+
+
+def test_fstring_inference():
+    rstring = r'(?P<digit>\d)hello(?P<character>\w)'
+    rf_stringer = rf_string.RFString(rstring)
+    assert rf_stringer._fstring == '{digit}hello{character}'
