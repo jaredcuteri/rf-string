@@ -1,16 +1,24 @@
+from typing import Optional
 import re
-
+import sre_parse
 from rf_string.exceptions import MatchNotFoundError, InconsistentRfStringDefError
 from rf_string.formatter import StoredFormatter
 
-
 class RFString:
-    def __init__(self, r_string_spec: str, f_string_spec: str):
-        self._r_string = r_string_spec
-        self._f_string = f_string_spec
-        self._parser = re.compile(self._r_string)
-        self._formatter = StoredFormatter(self._f_string)
+    def __init__(self, rstring_spec: str, fstring_spec: Optional[str] = None):
+        self._rstring = rstring_spec
+        if not fstring_spec:
+            fstring_spec = self.construct_fstring()
+        # TODO: This should construct the f string for you
+        self._fstring = fstring_spec
+        self._parser = re.compile(self._rstring)
+        self._formatter = StoredFormatter(self._fstring)
         self._validate()
+
+    def construct_fstring(self) -> str:
+        self._regex_tokens = sre_parse.parse(self._rstring)
+        sre_parse.Tokenizer()
+        return fstring
 
     def _test_round_trip(self) -> None:
         dummy_values = {field: idx for idx, field in enumerate(self._formatter.get_field_names_spec().keys())}
@@ -19,8 +27,8 @@ class RFString:
         rewritten_str = self.write(parsed_values)
         if rewritten_str != written_str:
             raise InconsistentRfStringDefError(
-                f'r-string definition {self._r_string} was not roundtrip compatible'
-                f' with f-string definition {self._f_string}'
+                f'r-string definition {self._rstring} was not roundtrip compatible'
+                f' with f-string definition {self._fstring}'
             )
 
     def _validate(self) -> None:
