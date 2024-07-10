@@ -7,19 +7,18 @@ name: Build and publish python package
 # Run on any push to master
 on:
   push:
-    branches:
-      - master
+    branches: master
+  pull_request:
+    branches: '**'
 
 jobs:
   # TODO: reduce duplication with testing.yml
   build:
-
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.11"]
-
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -43,6 +42,7 @@ jobs:
 
   publish:
     needs: build
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
